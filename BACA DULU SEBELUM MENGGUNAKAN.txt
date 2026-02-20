@@ -1,4 +1,5 @@
 1. Aplikasi ini tidak berjalan jika tidak ada Python pastika untuk mendownload nya terlebih dahulu
 2. Yang ke dua jika sudah ada Python tolong install ini "pip install -r requirements.txt"
+3. Khusus docker tidak usah menjalankan yang di atas cukup ikuti arahan README saja!
 
 Udah itu aja!!
