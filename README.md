@@ -16,9 +16,9 @@ services:
 
 Kalau mau lebih lengkap, tambahkan cara jalaninnya:
 
-```md
+
 Jalankan:
-```
+
 ```bash
 docker compose up -d --build
 ```
