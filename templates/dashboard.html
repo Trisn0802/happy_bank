@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container mt-5 mb-5">
+        <h2 class="text-center">Dashboard</h2>
+
+        <div class="row align-items-start">
+            <!-- Menampilkan email dan saldo user -->
+            <div class="col-sm-6">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h4 class="card-title">{{ user.email }}</h4> 
+                    <hr>
+                    <p class="card-text">Saldo Anda</p>
+                    <p class="card-text saldo_rekening">{{ user.saldo|format_currency }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form untuk Top-Up -->
+        <div class="col-sm-6">
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Top-Up Saldo</h5>
+                    <form id="topupForm">
+                        <div class="mb-3">
+                            <label for="topup_amount" class="form-label">Jumlah Top-Up</label>
+                            <input type="text" class="form-control" id="topup_amount" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Top-Up</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div/>
+
+        <!-- Form untuk Transfer -->
+        <h3 class="mt-4">Transfer</h3>
+        <form id="transferForm">
+            <div class="mb-3">
+                <label for="recipient_email" class="form-label">Email Penerima</label>
+                <input type="email" class="form-control" id="recipient_email" required>
+            </div>
+            <div class="mb-3">
+                <label for="transfer_amount" class="form-label">Jumlah</label>
+                <input type="text" class="form-control" id="transfer_amount" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Transfer</button>
+        </form>
+
+        <!-- Tabel untuk menampilkan riwayat transaksi -->
+        <h3 class="mt-4">Riwayat Transaksi</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tanggal</th>
+                    <th>Jumlah</th>
+                    <th>Tipe</th>
+                    <th>Pengirim</th>
+                    <th>Penerima</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for transaction in transactions %}
+                <tr>
+                    <td>{{ transaction.created_at }}</td>
+                    <td>{{ transaction.amount|format_currency }}</td>
+                    <td>{{ transaction.transaction_type }}</td>
+                    <td>{{ transaction.sender_name }}</td>
+                    <td>{{ transaction.recipient_name }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="/logout" class="btn btn-danger">Logout</a>
+    </div>
+
+    <script>
+        function formatNumberInput(input) {
+            const value = input.value.replace(/\D/g, '');
+            input.value = 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+        }
+
+        document.getElementById('topup_amount').addEventListener('input', function () {
+            formatNumberInput(this);
+        });
+
+        document.getElementById('transfer_amount').addEventListener('input', function () {
+            formatNumberInput(this);
+        });
+
+        document.getElementById('topupForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const amount = document.getElementById('topup_amount').value.replace(/\D/g, '');
+
+            fetch('/topup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ amount: amount }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.pesan === "Top-up berhasil") {
+                    alert(data.pesan);
+                    location.reload();  // Muat ulang halaman untuk memperbarui saldo
+                } else {
+                    alert(data.pesan);
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('transferForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const recipient_email = document.getElementById('recipient_email').value;
+            const amount = document.getElementById('transfer_amount').value.replace(/\D/g, '');
+
+            fetch('/transfer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ recipient_email, amount }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.pesan);
+                location.reload();
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>

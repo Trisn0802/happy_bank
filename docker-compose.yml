@@ -1,0 +1,9 @@
+services:
+  happy_bank:
+    build: .
+    container_name: happy_bank
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./instance:/app/instance
+    restart: unless-stopped
